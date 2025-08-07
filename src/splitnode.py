@@ -55,14 +55,12 @@ def split_nodes_image(old_nodes):
     for node in old_nodes:
 
         images = extract_markdown_images(node.text)
-        #print(f"Images: {images}")
         if not images:
             new_list.append(node)
     for image in images:
 
         image_check.append(image[0])
         image_check.append(image[1])
-    #print(f"Image check: {image_check}")
     if node.text_type == TextType.NORMAL:
         segments = re.split(pattern, node.text)
 
@@ -70,7 +68,6 @@ def split_nodes_image(old_nodes):
 
             if not segment:
                 continue
-            #print(f"Segment: {segment}")
             if not re.match(pattern, segment):
                 new_list.append(TextNode(segment, TextType.NORMAL))
             if re.match(pattern, segment):
@@ -90,23 +87,18 @@ def split_nodes_link(old_nodes):
     pattern = r'(\[[^\]]*\]\([^\)]*\))'
     for node in old_nodes:
         links = extract_markdown_links(node.text)
-        #print(f"Links: {links}")
         if not links:
             new_list.append(node)
     for link in links:
         link_check.append(link[0])
         link_check.append(link[1])
-    #print(f"Link check: {link_check}")
     if node.text_type == TextType.NORMAL:
        
         segments = re.split(pattern, node.text)
-        print(f"Segments: {segments}")
         for segment in segments:
-            print(f"Segment: {segment}")
             if not segment:
                 continue
             if not re.match(pattern, segment):
-                print(f"Adding normal text node: {segment}")
                 new_list.append(TextNode(segment, TextType.NORMAL)) 
             if re.match(pattern, segment):
                 for link_text, link_url in links:
@@ -119,15 +111,10 @@ def split_nodes_link(old_nodes):
 def text_to_textnodes(old_nodes):
     new_nodes = old_nodes
     new_nodes = split_nodes_delimiter(new_nodes, "*", TextType.NORMAL)
-    print(f"After splitting by '*': {new_nodes}")
     new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.NORMAL)
-    print(f"After splitting by '_': {new_nodes}")
     new_nodes = split_nodes_delimiter(new_nodes, "`", TextType.NORMAL)
-    print(f"After splitting by '`': {new_nodes}")
     new_nodes = split_nodes_image(new_nodes)
-    print(f"After splitting by images: {new_nodes}")
     new_nodes = split_nodes_link(new_nodes)
-    print(f"Final nodes: {new_nodes}")
     return new_nodes
 
 testnode = TextNode(

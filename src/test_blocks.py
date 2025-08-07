@@ -1,3 +1,5 @@
+from blocks import *
+
 def test_markdown_to_blocks(self):
         md = """
 This is **bolded** paragraph
@@ -17,3 +19,8 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+def test_markdown_to_blocks_empty(self):
+        md = ""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [""])
