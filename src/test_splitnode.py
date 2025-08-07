@@ -102,7 +102,7 @@ class TestSplitNode(unittest.TestCase):
         self.assertListEqual(
             [
                 TextNode("This is ", TextType.NORMAL),
-                TextNode("text", TextType.NORMAL),
+                TextNode("text", TextType.BOLD),
                 TextNode(" with an ", TextType.NORMAL),
                 TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
                 TextNode(" and a link ", TextType.NORMAL),
