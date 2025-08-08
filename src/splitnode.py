@@ -130,4 +130,4 @@ def tester(node_list):
         print(a)
 
 
-text_to_textnodes([testnode])
+print(text_to_textnodes([testnode]))

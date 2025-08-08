@@ -11,6 +11,6 @@ def main():
     b=HTMLNode("abcd","jklol","A",testdict)
     print(b)
     print(HTMLNode.props_to_html(b))
-    print(LeafNode("img", "", None, {"src":"","alt":""}).to_html())
+    print(LeafNode("img", "GUACAMOLE.png", None, {"src":"","alt":""}).to_html())
     return
 main()
