@@ -50,6 +50,13 @@ def block_to_block_type(block):
     else:
         return BlockType.paragraph
 
+def text_to_children(text):
+    list = text_to_textnodes(text)
+    new_list = []
+    for node in list:
+        new_list.append(text_to_html(node))
+    return new_list
+    
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -57,34 +64,44 @@ def markdown_to_html_node(markdown):
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type ==BlockType.heading and block.startswith("# "):
-            html_nodes.append(HTMLNode("h1",block.strip("# ")))
+            html_nodes.append(ParentNode("h1",None,text_to_children(block.strip("# "))))
         elif block_type ==BlockType.heading and block.startswith("## "):
-            html_nodes.append(HTMLNode("h2",block.strip("## ")))
+            html_nodes.append(ParentNode("h2",None,text_to_children(block.strip("## "))))
         elif block_type ==BlockType.heading and block.startswith("### "):
-            html_nodes.append(HTMLNode("h3",block.strip("### ")))
+            html_nodes.append(ParentNode("h3",None,text_to_children(block.strip("### "))))
         elif block_type ==BlockType.heading and block.startswith("#### "):
-            html_nodes.append(HTMLNode("h4",block.strip("#### ")))
+            html_nodes.append(ParentNode("h4",None,text_to_children(block.strip("#### "))))
         elif block_type ==BlockType.heading and block.startswith("##### "):
-            html_nodes.append(HTMLNode("h5",block.strip("##### ")))
+            html_nodes.append(ParentNode("h5",None,text_to_children(block.strip("##### "))))
         elif block_type ==BlockType.heading and block.startswith("###### "):
-            html_nodes.append(HTMLNode("h6",block.strip("###### ")))
+            html_nodes.append(ParentNode("h6",None,text_to_children(block.strip("###### "))))
         elif block_type == BlockType.quote:
             lines = block.splitlines()
             quote_lines = [line.lstrip("> ").rstrip() for line in lines]
             quote_text = "\n".join(quote_lines)
-            html_nodes.append(HTMLNode("blockquote", quote_text))
+            html_nodes.append(ParentNode("blockquote", None,text_to_children(quote_text)))
         elif block_type == BlockType.paragraph:
-            html_nodes.append(HTMLNode("p", block))
+            html_nodes.append(ParentNode("p",None,text_to_children(block)))
         elif block_type == BlockType.unordered_list:
             lines = block.splitlines()
             list_items = [line.lstrip("- ").rstrip() for line in lines]
-            li_nodes = [HTMLNode("li", item) for item in list_items]
+            li_nodes = [ParentNode("li", None, text_to_children(item)) for item in list_items]
             ul_node = ParentNode("ul", None, li_nodes)
             html_nodes.append(ul_node)
-    return html_nodes
+        elif block_type == BlockType.ordered_list:
+            lines = block.splitlines()
+            list_items = [line.split(". ", 1)[1].rstrip() for line in lines if ". " in line]
+            li_nodes = [ParentNode("li", None, text_to_children(item)) for item in list_items]
+            ol_node = ParentNode("ol", None, li_nodes)
+            html_nodes.append(ol_node)
+        elif block_type == BlockType.code:
+            code_content = block.strip("```").strip()
+            node = TextNode(code_content, TextType.CODE)
+            parent = ParentNode("pre", None, [text_to_html(node)])
+            html_nodes.append(parent)   
+    final_html = ParentNode("div", None, html_nodes)
+    return final_html
 
-def text_to_children(text):
-    pass
 
 md = "- This is an unordered list item\n- This is another unordered list item\n- This is yet another unordered list item"
 test = markdown_to_html_node(md)
