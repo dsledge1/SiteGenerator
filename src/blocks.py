@@ -58,7 +58,7 @@ def markdown_to_blocks(markdown):
         
         # Determine line type
         line_type = None
-        if line.startswith("> "):
+        if line.startswith("> ") or line == ">":
             line_type = "quote"
         elif line.startswith("- ") or line.startswith("* "):
             line_type = "unordered_list"
@@ -71,6 +71,7 @@ def markdown_to_blocks(markdown):
         if current_block_type and current_block_type != line_type:
             blocks.append("\n".join(current_block))
             current_block = []
+        
         
         current_block.append(line)
         current_block_type = line_type
@@ -187,9 +188,9 @@ def markdown_to_html_node(markdown):
     return final_html
 
 
-md = "- This is an unordered list item\n- This is another unordered list item\n- This is yet another unordered list item"
-test = markdown_to_html_node(md)
+#md = "- This is an unordered list item\n- This is another unordered list item\n- This is yet another unordered list item"
+#test = markdown_to_html_node(md)
 #testleaf = LeafNode(test[0].tag, test[0].value)
-print(test)
+#print(test)
 #print(testleaf)
 #print(testleaf.to_html())
