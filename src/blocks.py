@@ -76,10 +76,11 @@ def markdown_to_html_node(markdown):
         elif block_type == BlockType.quote:
             lines = block.splitlines()
             quote_lines = [line.lstrip("> ").rstrip() for line in lines]
-            quote_text = "\n".join(quote_lines)
+            quote_text = " ".join(quote_lines)
             html_nodes.append(ParentNode("blockquote",text_to_children(quote_text)))
         elif block_type == BlockType.paragraph:
-            html_nodes.append(ParentNode("p",text_to_children(block)))
+            new_block = " ".join(block.splitlines())
+            html_nodes.append(ParentNode("p",text_to_children(new_block)))
         elif block_type == BlockType.unordered_list:
             lines = block.splitlines()
             list_items = [line.lstrip("- ").rstrip() for line in lines]
@@ -93,7 +94,7 @@ def markdown_to_html_node(markdown):
             ol_node = ParentNode("ol",li_nodes)
             html_nodes.append(ol_node)
         elif block_type == BlockType.code:
-            code_content = block.strip("```")
+            code_content = block[4:-3] 
             node = TextNode(code_content, TextType.CODE)
             parent = ParentNode("pre",[text_to_html(node)])
             html_nodes.append(parent)   

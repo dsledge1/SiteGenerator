@@ -120,4 +120,79 @@ the **same** even with inline stuff
         self.assertEqual(
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
-        )    
+        )
+    def test_block_quote(self):
+        md = """
+> This is a quote
+> with multiple lines
+> and some **bold** text
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a quote with multiple lines and some <b>bold</b> text</blockquote></div>",
+        )
+
+    def test_unordered_list(self):
+        md = """
+- Item 1
+- Item 2
+- Item 3
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul></div>",
+        )
+
+    def test_ordered_list(self):
+        md = """
+1. First item
+2. Second item
+3. Third item
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>First item</li><li>Second item</li><li>Third item</li></ol></div>",
+        )
+
+    def test_heading(self):
+        md = """
+# Heading 1
+## Heading 2
+### Heading 3
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3></div>",
+        )
+
+    def test_mixed_content(self):
+        md = """
+# Heading
+This is a paragraph with **bold** text and _italic_ text.
+- List item 1
+- List item 2
+> This is a quote.
+```
+Code block
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertIn("<h1>Heading</h1>", html)
+        self.assertIn("<p>This is a paragraph with <b>bold</b> text and <i>italic</i> text.</p>", html)
+        self.assertIn("<ul><li>List item 1</li><li>List item 2</li></ul>", html)
+        self.assertIn("<blockquote>This is a quote.</blockquote>", html)
+        self.assertIn("<pre><code>Code block\n</code></pre>", html)        
