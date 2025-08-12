@@ -8,9 +8,9 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     for node in old_nodes:
         if node.text_type != TextType.NORMAL:
             new_list.append(node)
-        if node.text_type == TextType.NORMAL and delimiter not in node.text:
+        elif node.text_type == TextType.NORMAL and delimiter not in node.text:
             new_list.append(node)
-        if delimiter in node.text and node.text_type == TextType.NORMAL:
+        elif delimiter in node.text and node.text_type == TextType.NORMAL:
             parts = node.text.split(delimiter)
             if len(parts) %2 == 0:
                 raise Exception(f"Invalid markdown syntax: missing closing delimiter '{delimiter}'")
@@ -30,7 +30,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     else:
                         raise Exception(f"Unknown delimiter: {delimiter}")
                     if idx % 2 == 0:
-                        new_list.append(TextNode(part, text_type))
+                        new_list.append(TextNode(part, TextType.NORMAL))
                     else:
                         new_list.append(TextNode(part, new_type))
 
@@ -53,7 +53,6 @@ def split_nodes_image(old_nodes):
 
     pattern = r'(!\[[^\]]*\]\([^\)]*\))'
     for node in old_nodes:
-
         images = extract_markdown_images(node.text)
         if not images:
             new_list.append(node)
@@ -68,9 +67,9 @@ def split_nodes_image(old_nodes):
 
             if not segment:
                 continue
-            if not re.match(pattern, segment):
+            elif not re.match(pattern, segment):
                 new_list.append(TextNode(segment, TextType.NORMAL))
-            if re.match(pattern, segment):
+            elif re.match(pattern, segment):
                 for image_alt, image_url in images:
                     if segment == f"![{image_alt}]({image_url})":
                         new_list.append(TextNode(image_alt, TextType.IMAGE, image_url))
@@ -100,7 +99,7 @@ def split_nodes_link(old_nodes):
                 continue
             if not re.match(pattern, segment):
                 new_list.append(TextNode(segment, TextType.NORMAL)) 
-            if re.match(pattern, segment):
+            elif re.match(pattern, segment):
                 for link_text, link_url in links:
                     if segment == f"[{link_text}]({link_url})":
                         new_list.append(TextNode(link_text, TextType.LINK, link_url))
@@ -109,6 +108,8 @@ def split_nodes_link(old_nodes):
     return new_list
 
 def text_to_textnodes(old_nodes):
+    if old_nodes == "":
+        return []
     new_nodes = old_nodes
     new_nodes = split_nodes_delimiter(new_nodes, "*", TextType.NORMAL)
     new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.NORMAL)

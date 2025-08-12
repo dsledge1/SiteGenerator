@@ -7,9 +7,9 @@ from splitnode import *
 def markdown_to_blocks(markdown):
     string = markdown.strip()
     blocks = re.split(r'\n\n+', string)
-    for block in blocks:
-        block = block.strip()
-
+    for idx, block in enumerate(blocks):
+        blocks[idx] = block.strip()
+    print(f"Markdown blocks after split: {blocks}")
     return blocks
 
 class BlockType(Enum):
@@ -51,7 +51,7 @@ def block_to_block_type(block):
         return BlockType.paragraph
 
 def text_to_children(text):
-    list = text_to_textnodes(text)
+    list = text_to_textnodes([TextNode(text, TextType.NORMAL)])
     new_list = []
     for node in list:
         new_list.append(text_to_html(node))
@@ -60,46 +60,49 @@ def text_to_children(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    print(f"Markdown blocks: {blocks}")
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type ==BlockType.heading and block.startswith("# "):
-            html_nodes.append(ParentNode("h1",None,text_to_children(block.strip("# "))))
+            html_nodes.append(ParentNode("h1",text_to_children(block.strip("# "))))
         elif block_type ==BlockType.heading and block.startswith("## "):
-            html_nodes.append(ParentNode("h2",None,text_to_children(block.strip("## "))))
+            html_nodes.append(ParentNode("h2",text_to_children(block.strip("## "))))
         elif block_type ==BlockType.heading and block.startswith("### "):
-            html_nodes.append(ParentNode("h3",None,text_to_children(block.strip("### "))))
+            html_nodes.append(ParentNode("h3",text_to_children(block.strip("### "))))
         elif block_type ==BlockType.heading and block.startswith("#### "):
-            html_nodes.append(ParentNode("h4",None,text_to_children(block.strip("#### "))))
+            html_nodes.append(ParentNode("h4",text_to_children(block.strip("#### "))))
         elif block_type ==BlockType.heading and block.startswith("##### "):
-            html_nodes.append(ParentNode("h5",None,text_to_children(block.strip("##### "))))
+            html_nodes.append(ParentNode("h5",text_to_children(block.strip("##### "))))
         elif block_type ==BlockType.heading and block.startswith("###### "):
-            html_nodes.append(ParentNode("h6",None,text_to_children(block.strip("###### "))))
+            html_nodes.append(ParentNode("h6",text_to_children(block.strip("###### "))))
         elif block_type == BlockType.quote:
             lines = block.splitlines()
             quote_lines = [line.lstrip("> ").rstrip() for line in lines]
             quote_text = "\n".join(quote_lines)
-            html_nodes.append(ParentNode("blockquote", None,text_to_children(quote_text)))
+            html_nodes.append(ParentNode("blockquote",text_to_children(quote_text)))
         elif block_type == BlockType.paragraph:
-            html_nodes.append(ParentNode("p",None,text_to_children(block)))
+            html_nodes.append(ParentNode("p",text_to_children(block)))
         elif block_type == BlockType.unordered_list:
             lines = block.splitlines()
             list_items = [line.lstrip("- ").rstrip() for line in lines]
-            li_nodes = [ParentNode("li", None, text_to_children(item)) for item in list_items]
-            ul_node = ParentNode("ul", None, li_nodes)
+            li_nodes = [ParentNode("li", text_to_children(item)) for item in list_items]
+            ul_node = ParentNode("ul",li_nodes)
             html_nodes.append(ul_node)
         elif block_type == BlockType.ordered_list:
             lines = block.splitlines()
             list_items = [line.split(". ", 1)[1].rstrip() for line in lines if ". " in line]
-            li_nodes = [ParentNode("li", None, text_to_children(item)) for item in list_items]
-            ol_node = ParentNode("ol", None, li_nodes)
+            li_nodes = [ParentNode("li",text_to_children(item)) for item in list_items]
+            ol_node = ParentNode("ol",li_nodes)
             html_nodes.append(ol_node)
         elif block_type == BlockType.code:
             code_content = block.strip("```").strip()
             node = TextNode(code_content, TextType.CODE)
-            parent = ParentNode("pre", None, [text_to_html(node)])
+            parent = ParentNode("pre",[text_to_html(node)])
             html_nodes.append(parent)   
-    final_html = ParentNode("div", None, html_nodes)
+    final_html = ParentNode("div", html_nodes)
+    print(f"Final HTML Node: {final_html}")
+    print(f"Final HTML Node Children: {final_html.children}")
     return final_html
 
 

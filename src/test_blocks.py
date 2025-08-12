@@ -84,3 +84,8 @@ This is the same paragraph on a new line
         block_type = block_to_block_type(block)
         self.assertEqual(block_type, BlockType.paragraph)
      
+    def test_markdown_to_html_node(self):
+        md = "# Heading 1\n\nThis is a paragraph with **bold** text and _italic_ text.\n\n- List item 1\n- List item 2\n\n> This is a quote.\n\n```\nCode block\n```"
+        html_node = markdown_to_html_node(md)
+        self.assertEqual(html_node.tag, "div")
+        self.assertEqual(len(html_node.children), 5)
