@@ -12,32 +12,32 @@ def rec_copy(source, dest):
     pwd = "/home/dsledge1/workspace/github.com/dsledge1/SiteGenerator"
     s = os.path.join(pwd, source)
     d = os.path.join(pwd, dest)
-    #print(f"copying from {s} to {d}")
-    #print(f"items to be copied: {os.listdir(s)}")
+    print(f"copying from {s} to {d}")
+    print(f"items to be copied: {os.listdir(s)}")
     if not os.path.exists(d):
         os.makedirs(d)
     if os.path.exists(d):
         if os.listdir(d):
-            #print(f"Destination is not empty, deleting destination tree at {d}")
+            print(f"Destination is not empty, deleting destination tree at {d}")
             shutil.rmtree(d)
-            #print(f"making fresh directory {d}")
+            print(f"making fresh directory {d}")
             os.mkdir(d)
     for item in os.listdir(s):
         i = os.path.join(s, item)
-        #print(f"processing {i}")
+        print(f"processing {i}")
         if os.path.isdir(i):
-            #print(f"{item} is a directory")
+            print(f"{item} is a directory")
             new_dest = os.path.join(d, item)
-            #print(f"{new_dest} is the new correponding target directory")
+            print(f"{new_dest} is the new correponding target directory")
             if not os.path.exists(new_dest):
-                #print(f"{new_dest} does not exist, creating directory")
+                print(f"{new_dest} does not exist, creating directory")
                 os.makedirs(new_dest)
-            #print(f"Recursively copying files inside {item}")
+            print(f"Recursively copying files inside {item}")
             rec_copy(os.path.join(s, item), new_dest)
         elif not os.path.isdir(i):
-            #print(f"Copying {item} from {s} to {d}")
+            print(f"Copying {item} from {s} to {d}")
             shutil.copy(os.path.join(s,item), d)
-            #print(f"{item} copied successfully")
+            print(f"{item} copied successfully")
 
 def extract_title(markdown):
     string = markdown.strip()
@@ -49,7 +49,7 @@ def extract_title(markdown):
             raise Exception("No header found")
 
 def generate_page(from_path, template_path, dest_path):
-    #print(f"Generating page from {from_path} using template {template_path} to {dest_path}")
+    print(f"Generating page from {from_path} using template {template_path} to {dest_path}")
     md = open(from_path, "r").read()
     template = open(template_path, "r").read()
     html = markdown_to_html_node(md).to_html()
@@ -65,12 +65,30 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_file, "w") as f:
         f.write(template)
 
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    print("Beginning recursive generator")
+    dir = dir_path_content
+    pwd = os.path.join("/home/dsledge1/workspace/github.com/dsledge1/SiteGenerator",dir)
+    print(f"Current directory is {dir} and contents are {os.listdir(dir)}")
+    for item in os.listdir(dir):
+        current_path = os.path.join(pwd,item)
+        print(f"current path is {current_path}")
+        if os.path.isdir(os.path.join(pwd,item)):
+            print(f"Directory found {item}")
+            new_dir = os.path.join(pwd, item)
+            new_des = os.path.join(dest_dir_path, item)
+            print("Directory found, moving into {new_dir}, new destination is {new_des}")
+            generate_pages_recursive(new_dir, template_path, new_des)
+        elif os.path.isfile(os.path.join(pwd,item)) and item.endswith(".md"):
+            print(f"Markdown file found: {item}")
+            generate_page(os.path.join(pwd,item), template_path, dest_dir_path)
+        
 
 
 def main():
     rec_copy("static", "public")
-    generate_page("content/index.md","template.html","public")
-
+    #generate_page("content/index.md","template.html","public")
+    generate_pages_recursive("content", "template.html", "public")
 
 if __name__ == "__main__":
     main()
