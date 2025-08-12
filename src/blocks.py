@@ -9,7 +9,6 @@ def markdown_to_blocks(markdown):
     blocks = re.split(r'\n\n+', string)
     for idx, block in enumerate(blocks):
         blocks[idx] = block.strip()
-    print(f"Markdown blocks after split: {blocks}")
     return blocks
 
 class BlockType(Enum):
@@ -40,8 +39,7 @@ def block_to_block_type(block):
                 return BlockType.unordered_list
     elif re.match(r'^\d+\. ', block):
         for idx, line in enumerate(block.splitlines()):
-            print(f"Line: {line}, Index: {idx+1}")
-            print(f"First word: {line.split()[0]}")
+
             if not str(line.split()[0]) == f"{idx+1}.":
                 return BlockType.paragraph
             else:
@@ -60,7 +58,6 @@ def text_to_children(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    print(f"Markdown blocks: {blocks}")
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
@@ -96,13 +93,13 @@ def markdown_to_html_node(markdown):
             ol_node = ParentNode("ol",li_nodes)
             html_nodes.append(ol_node)
         elif block_type == BlockType.code:
-            code_content = block.strip("```").strip()
+            code_content = block.strip("```")
             node = TextNode(code_content, TextType.CODE)
             parent = ParentNode("pre",[text_to_html(node)])
             html_nodes.append(parent)   
     final_html = ParentNode("div", html_nodes)
-    print(f"Final HTML Node: {final_html}")
-    print(f"Final HTML Node Children: {final_html.children}")
+    """print(f"Final HTML Node: {final_html}")
+    print(f"Final HTML Node Children: {final_html.children}")"""
     return final_html
 
 

@@ -6,8 +6,8 @@ class TestSplitNode(unittest.TestCase):
 
    
     def test_split(self):
-        node = TextNode("This is a *text* node", TextType.NORMAL)
-        result = split_nodes_delimiter([node], "*", TextType.NORMAL)
+        node = TextNode("This is a **text** node", TextType.NORMAL)
+        result = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0].text, "This is a ")
         self.assertEqual(result[1].text, "text")
@@ -23,8 +23,8 @@ class TestSplitNode(unittest.TestCase):
         self.assertRaises(Exception, split_nodes_delimiter, [node], "*", TextType.NORMAL)
 
     def test_different_text_type(self):
-        node = TextNode("This is a *text* node", TextType.NORMAL)
-        result = split_nodes_delimiter([node], "*", TextType.BOLD)
+        node = TextNode("This is a **text** node", TextType.NORMAL)
+        result = split_nodes_delimiter([node], "**", TextType.BOLD)
 
         
         self.assertEqual(result[0].text, "This is a ")
@@ -95,7 +95,7 @@ class TestSplitNode(unittest.TestCase):
 
     def test_split_nodes_links_and_images(self):
         node = TextNode(
-            "This is *text* with an ![image](https://i.imgur.com/zjjcJKZ.png) and a link [linky](https://i.imgur.com/3elNhQu.png)",
+            "This is **text** with an ![image](https://i.imgur.com/zjjcJKZ.png) and a link [linky](https://i.imgur.com/3elNhQu.png)",
             TextType.NORMAL,
         )
         new_nodes = text_to_textnodes([node])
