@@ -6,9 +6,85 @@ from splitnode import *
 
 def markdown_to_blocks(markdown):
     string = markdown.strip()
-    blocks = re.split(r'\n\n+', string)
+    lines = string.splitlines()
+    blocks = []
+    current_block = []
+    in_code_block = False
+    current_block_type = None
+    
+    for line in lines:
+        stripped_line = line.strip()
+        
+        # Handle code blocks specially
+        if stripped_line.startswith("```"):
+            if not in_code_block:
+                # Start of code block
+                if current_block:
+                    blocks.append("\n".join(current_block))
+                    current_block = []
+                current_block.append(line)
+                in_code_block = True
+                current_block_type = "code"
+            else:
+                # End of code block
+                current_block.append(line)
+                blocks.append("\n".join(current_block))
+                current_block = []
+                in_code_block = False
+                current_block_type = None
+            continue
+        
+        # If we're in a code block, just add the line
+        if in_code_block:
+            current_block.append(line)
+            continue
+        
+        # Empty line handling
+        if stripped_line == "":
+            if current_block:
+                blocks.append("\n".join(current_block))
+                current_block = []
+                current_block_type = None
+            continue
+        
+        # Heading - always starts new block
+        if re.match(r'^#{1,6} ', line):
+            if current_block:
+                blocks.append("\n".join(current_block))
+                current_block = []
+            blocks.append(line)
+            current_block_type = None
+            continue
+        
+        # Determine line type
+        line_type = None
+        if line.startswith("> "):
+            line_type = "quote"
+        elif line.startswith("- ") or line.startswith("* "):
+            line_type = "unordered_list"
+        elif re.match(r'^\d+\. ', line):
+            line_type = "ordered_list"
+        else:
+            line_type = "paragraph"
+        
+        # If block type changes, start new block
+        if current_block_type and current_block_type != line_type:
+            blocks.append("\n".join(current_block))
+            current_block = []
+        
+        current_block.append(line)
+        current_block_type = line_type
+    
+    # Add final block
+    if current_block:
+        blocks.append("\n".join(current_block))
+    
+    # Clean up blocks
     for idx, block in enumerate(blocks):
         blocks[idx] = block.strip()
+    
+    if not blocks:
+        return [""]
     return blocks
 
 class BlockType(Enum):
@@ -58,21 +134,28 @@ def text_to_children(text):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+
+        
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
-        if block_type ==BlockType.heading and block.startswith("# "):
-            html_nodes.append(ParentNode("h1",text_to_children(block.strip("# "))))
-        elif block_type ==BlockType.heading and block.startswith("## "):
-            html_nodes.append(ParentNode("h2",text_to_children(block.strip("## "))))
-        elif block_type ==BlockType.heading and block.startswith("### "):
-            html_nodes.append(ParentNode("h3",text_to_children(block.strip("### "))))
-        elif block_type ==BlockType.heading and block.startswith("#### "):
-            html_nodes.append(ParentNode("h4",text_to_children(block.strip("#### "))))
-        elif block_type ==BlockType.heading and block.startswith("##### "):
-            html_nodes.append(ParentNode("h5",text_to_children(block.strip("##### "))))
-        elif block_type ==BlockType.heading and block.startswith("###### "):
-            html_nodes.append(ParentNode("h6",text_to_children(block.strip("###### "))))
+        if block.strip() == "":
+            continue
+        elif block_type == BlockType.heading:
+            new_block = block.splitlines()
+            for line in new_block:
+                if line.startswith("# "):
+                    html_nodes.append(ParentNode("h1",text_to_children(line.strip("# "))))
+                elif  line.startswith("## "):
+                    html_nodes.append(ParentNode("h2",text_to_children(line.strip("## "))))
+                elif line.startswith("### "):
+                    html_nodes.append(ParentNode("h3",text_to_children(line.strip("### "))))
+                elif line.startswith("#### "):
+                    html_nodes.append(ParentNode("h4",text_to_children(line.strip("#### "))))
+                elif line.startswith("##### "):
+                    html_nodes.append(ParentNode("h5",text_to_children(line.strip("##### "))))
+                elif line.startswith("###### "):
+                    html_nodes.append(ParentNode("h6",text_to_children(line.strip("###### "))))
         elif block_type == BlockType.quote:
             lines = block.splitlines()
             quote_lines = [line.lstrip("> ").rstrip() for line in lines]
