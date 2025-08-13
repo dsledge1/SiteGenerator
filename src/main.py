@@ -57,6 +57,7 @@ def generate_page(from_path, template_path, dest_path, basepath="/"):
     title = extract_title(md)
     template = template.replace("{{ Title }}", f"{title}")
     template = template.replace("{{ Content }}", f"{html}")
+    print(f"Updating using basepath {basepath}")
     template = template.replace('href="/', f'href="{basepath}')
     template = template.replace('src="/', f'src="{basepath}')
     if not os.path.exists(dest_path):
