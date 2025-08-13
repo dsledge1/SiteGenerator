@@ -1,2 +1,2 @@
-python3 src/main.py "/dsledge1/SiteGenerator"
+python3 src/main.py "/SiteGenerator/"
 echo "SiteGenerator build complete."
