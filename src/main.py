@@ -81,11 +81,11 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
             print(f"Directory found {item}")
             new_dir = os.path.join(pwd, item)
             new_des = os.path.join(dest_dir_path, item)
-            print("Directory found, moving into {new_dir}, new destination is {new_des}")
-            generate_pages_recursive(new_dir, template_path, new_des)
+            print(f"Directory found, moving into {new_dir}, new destination is {new_des}")
+            generate_pages_recursive(new_dir, template_path, new_des, basepath)
         elif os.path.isfile(os.path.join(pwd,item)) and item.endswith(".md"):
             print(f"Markdown file found: {item}")
-            generate_page(os.path.join(pwd,item), template_path, dest_dir_path)
+            generate_page(os.path.join(pwd,item), template_path, dest_dir_path, basepath)
         
 
 
